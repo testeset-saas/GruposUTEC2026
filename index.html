@@ -52,8 +52,8 @@
 </header>
 <main>
   <section id="configCard" class="card">
-    <h2>NOTA:</h2>
-    <p class="muted">Antes de confirmar los cambios,  estar seguros de los 5 temas seleccionados , una vez confirmado el tema ya no se podra cambiar</p>
+    <h2>Configuración</h2>
+    <p class="muted">Antes de publicar, reemplaza en el código los valores de <code>SUPABASE_URL</code> y <code>SUPABASE_ANON_KEY</code>.</p>
   </section>
 
   <section id="loginCard" class="card">
@@ -78,8 +78,8 @@
 </main>
 
 <script>
-const SUPABASE_URL = 'https://batixrzvgsvenmiuwxyi.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_6PB2t2VRNrdOSsJ-Xx-HLQ_q7npR6C-';
+const SUPABASE_URL = 'REEMPLAZAR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'REEMPLAZAR_SUPABASE_ANON_KEY';
 
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -258,45 +258,62 @@ async function loadCoordinatorView(ctx) {
 }
 
 async function loadApp() {
-  const ctx = await getProfile();
-  if (!ctx?.authUser) {
-    appCard.classList.add('hidden');
-    loginCard.classList.remove('hidden');
-    return;
-  }
-  if (!ctx.group) {
+  try {
+    const ctx = await getProfile();
+    if (!ctx?.authUser) {
+      appCard.classList.add('hidden');
+      loginCard.classList.remove('hidden');
+      return;
+    }
+    if (!ctx.group) {
+      loginCard.classList.remove('hidden');
+      appCard.classList.remove('hidden');
+      appCard.innerHTML = `<div class="notice bad">El usuario autenticado no tiene registro asociado en la tabla grupos.</div>`;
+      return;
+    }
+    loginCard.classList.add('hidden');
+    appCard.classList.remove('hidden');
+    if (ctx.group.perfil === 'coordinacion') {
+      await loadCoordinatorView(ctx);
+    } else {
+      await loadStudentView(ctx);
+    }
+  } catch (err) {
     loginCard.classList.remove('hidden');
     appCard.classList.remove('hidden');
-    appCard.innerHTML = `<div class="notice bad">El usuario autenticado no tiene registro asociado en la tabla grupos.</div>`;
-    return;
-  }
-  loginCard.classList.add('hidden');
-  appCard.classList.remove('hidden');
-  if (ctx.group.perfil === 'coordinacion') {
-    await loadCoordinatorView(ctx);
-  } else {
-    await loadStudentView(ctx);
+    appCard.innerHTML = `<div class="notice bad">Error cargando el perfil o las consultas posteriores: ${escapeHtml(err?.message || err)}</div>`;
+    throw err;
   }
 }
 
 async function login() {
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value;
+
   if (!email || !password) {
     msg(loginMsg, 'Debes ingresar correo y contraseña.', 'warn');
     return;
   }
+
   btnLogin.disabled = true;
   msg(loginMsg, 'Validando acceso…', 'warn');
-  const { error } = await sb.auth.signInWithPassword({ email, password });
-  if (error) {
+
+  try {
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      btnLogin.disabled = false;
+      msg(loginMsg, escapeHtml(error.message || 'No se pudo iniciar sesión.'), 'bad');
+      return;
+    }
+
+    loginMsg.innerHTML = '';
+    await loadApp();
     btnLogin.disabled = false;
-    msg(loginMsg, escapeHtml(error.message || 'No se pudo iniciar sesión.'), 'bad');
-    return;
+  } catch (err) {
+    btnLogin.disabled = false;
+    msg(loginMsg, escapeHtml(err?.message || String(err) || 'Error posterior al inicio de sesión.'), 'bad');
   }
-  btnLogin.disabled = false;
-  loginMsg.innerHTML = '';
-  await loadApp();
 }
 
 async function logout(){
@@ -305,12 +322,14 @@ async function logout(){
   loginCard.classList.remove('hidden');
   document.getElementById('email').value = '';
   document.getElementById('password').value = '';
+  loginMsg.innerHTML = '';
 }
 
 btnLogin.onclick = login;
 loadApp().catch(err => {
+  loginCard.classList.remove('hidden');
   appCard.classList.remove('hidden');
-  appCard.innerHTML = `<div class="notice bad">Error inicial: ${escapeHtml(err.message || err)}</div>`;
+  appCard.innerHTML = `<div class="notice bad">Error inicial: ${escapeHtml(err?.message || err)}</div>`;
 });
 </script>
 </body>
