@@ -3,65 +3,241 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Asignación de temas de Projectos 2026</title>
+  <title>Asignación de temas de Proyectos 2026</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root{
-      --bg:#f5f7fb;--card:#ffffff;--ink:#122033;--muted:#5c6b7b;--line:#dbe3ee;--brand:#0f4c81;--brand2:#0b3b64;
-      --ok:#0f766e;--warn:#b45309;--bad:#b91c1c;
+      --bg:#f5f7fb;
+      --card:#ffffff;
+      --ink:#122033;
+      --muted:#5c6b7b;
+      --line:#dbe3ee;
+      --brand:#0f4c81;
+      --brand2:#0b3b64;
+      --ok:#0f766e;
+      --warn:#b45309;
+      --bad:#b91c1c;
     }
+
     *{box-sizing:border-box}
-    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink)}
-    header{background:var(--brand);color:#fff;padding:18px 24px}
-    header h1{margin:0;font-size:28px}
-    header p{margin:6px 0 0;font-size:14px;opacity:.95}
-    main{max-width:1100px;margin:26px auto;padding:0 18px}
-    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:18px;box-shadow:0 8px 18px rgba(15,76,129,.05)}
-    h2{margin:0 0 14px;font-size:24px}
-    h3{margin:0 0 12px;font-size:18px}
+
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+    }
+
+    header{
+      background:var(--brand);
+      color:#fff;
+      padding:18px 24px;
+    }
+
+    header h1{
+      margin:0;
+      font-size:28px;
+    }
+
+    header p{
+      margin:6px 0 0;
+      font-size:14px;
+      opacity:.95;
+    }
+
+    main{
+      max-width:1100px;
+      margin:26px auto;
+      padding:0 18px;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:20px;
+      margin-bottom:18px;
+      box-shadow:0 8px 18px rgba(15,76,129,.05);
+    }
+
+    h2{
+      margin:0 0 14px;
+      font-size:24px;
+    }
+
+    h3{
+      margin:0 0 12px;
+      font-size:18px;
+    }
+
     .muted{color:var(--muted)}
-    .grid{display:grid;gap:14px}
-    .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
-    .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
-    .metric{border:1px solid var(--line);border-radius:12px;padding:14px}
-    .metric .value{font-size:28px;font-weight:700;color:var(--brand)}
-    label{display:block;font-size:13px;margin-bottom:6px;color:var(--ink)}
-    input,select,button{font:inherit}
-    input,select{width:100%;padding:12px 13px;border:1px solid #bdd0e4;border-radius:10px;background:#fff}
-    button{padding:12px 16px;border:0;border-radius:10px;background:var(--brand);color:#fff;font-weight:700;cursor:pointer}
-    button.secondary{background:#eef4fb;color:var(--brand);border:1px solid #c8d8ea}
-    button:disabled{opacity:.55;cursor:not-allowed}
-    .actions{display:flex;gap:10px;flex-wrap:wrap}
-    .notice{padding:11px 12px;border-radius:10px;margin-top:10px;font-size:14px}
-    .notice.ok{background:#ecfdf5;color:var(--ok);border:1px solid #a7f3d0}
-    .notice.warn{background:#fff7ed;color:var(--warn);border:1px solid #fed7aa}
-    .notice.bad{background:#fef2f2;color:var(--bad);border:1px solid #fecaca}
-    table{width:100%;border-collapse:collapse}
-    th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:14px;vertical-align:top}
-    th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
-    .hidden{display:none!important}
-    .tag{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef4fb;color:var(--brand);font-size:12px;font-weight:700}
-    .footer-note{font-size:12px;color:var(--muted);margin-top:10px}
-    @media (max-width:800px){.grid-2,.grid-3{grid-template-columns:1fr}}
-    .danger {
-  background: #b91c1c;
-  color: white;
-  border: none;
-}
-.danger:hover {
-  filter: brightness(0.95);
-}
+
+    .grid{
+      display:grid;
+      gap:14px;
+    }
+
+    .grid-2{
+      grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+
+    .grid-3{
+      grid-template-columns:repeat(3,minmax(0,1fr));
+    }
+
+    .metric{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:14px;
+    }
+
+    .metric .value{
+      font-size:28px;
+      font-weight:700;
+      color:var(--brand);
+    }
+
+    label{
+      display:block;
+      font-size:13px;
+      margin-bottom:6px;
+      color:var(--ink);
+    }
+
+    input,select,button{
+      font:inherit;
+    }
+
+    input,select{
+      width:100%;
+      padding:12px 13px;
+      border:1px solid #bdd0e4;
+      border-radius:10px;
+      background:#fff;
+    }
+
+    button{
+      padding:12px 16px;
+      border:0;
+      border-radius:10px;
+      background:var(--brand);
+      color:#fff;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    button.secondary{
+      background:#eef4fb;
+      color:var(--brand);
+      border:1px solid #c8d8ea;
+    }
+
+    button:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .notice{
+      padding:11px 12px;
+      border-radius:10px;
+      margin-top:10px;
+      font-size:14px;
+    }
+
+    .notice.ok{
+      background:#ecfdf5;
+      color:var(--ok);
+      border:1px solid #a7f3d0;
+    }
+
+    .notice.warn{
+      background:#fff7ed;
+      color:var(--warn);
+      border:1px solid #fed7aa;
+    }
+
+    .notice.bad{
+      background:#fef2f2;
+      color:var(--bad);
+      border:1px solid #fecaca;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+    }
+
+    th,td{
+      padding:10px 8px;
+      border-bottom:1px solid var(--line);
+      text-align:left;
+      font-size:14px;
+      vertical-align:top;
+    }
+
+    th{
+      font-size:12px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.03em;
+    }
+
+    .hidden{
+      display:none !important;
+    }
+
+    .tag{
+      display:inline-block;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#eef4fb;
+      color:var(--brand);
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .footer-note{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:10px;
+    }
+
+    .danger{
+      background:#b91c1c;
+      color:white;
+      border:none;
+    }
+
+    .danger:hover{
+      filter:brightness(0.95);
+    }
+
+    @media (max-width:800px){
+      .grid-2,.grid-3{
+        grid-template-columns:1fr;
+      }
+    }
   </style>
 </head>
 <body>
 <header>
   <h1>Asignación de temas de proyectos 2026</h1>
-  <p>Sistema de selección y asignación de temas </p>
+  <p>Sistema de selección y asignación de temas</p>
 </header>
+
 <main>
   <section id="configCard" class="card">
-    <h2>Nota Importante</h2>
-    <p class="muted">Antes de dar click en el boton para validar los 5 temas seleccionados, revisar bien los temas seleccionados, ya que una vez se seleccione el tema final, ya no es posible reasignarlo.</p>
+    <h2>Nota importante</h2>
+    <p class="muted">
+      Antes de dar clic en el botón para validar los 5 temas seleccionados, revisa cuidadosamente tus opciones.
+      Una vez confirmada la asignación final, ya no será posible modificarla.
+    </p>
   </section>
 
   <section id="loginCard" class="card">
@@ -100,11 +276,16 @@ const btnLogin = document.getElementById('btnLogin');
 function msg(el, text, type='warn') {
   el.innerHTML = `<div class="notice ${type}">${text}</div>`;
 }
+
 function escapeHtml(s='') {
   return String(s)
-    .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
-    .replaceAll('"','&quot;').replaceAll("'",'&#39;');
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'",'&#39;');
 }
+
 function csvEscape(v){
   const s = v == null ? '' : String(v);
   return '"' + s.replaceAll('"','""') + '"';
@@ -113,13 +294,17 @@ function csvEscape(v){
 async function getProfile() {
   const { data: authData, error: authErr } = await sb.auth.getUser();
   if (authErr || !authData?.user) return null;
+
   const uid = authData.user.id;
+
   const { data, error } = await sb
     .from('grupos')
     .select('*')
     .eq('user_id', uid)
     .maybeSingle();
+
   if (error) throw error;
+
   return { authUser: authData.user, group: data };
 }
 
@@ -132,12 +317,14 @@ function allowedModesForGroup(group){
 async function loadStudentView(ctx) {
   const g = ctx.group;
   let assigned = null;
+
   try {
     const { data } = await sb
       .from('vw_asignaciones_export')
       .select('*')
       .eq('codigo_grupo', g.codigo_grupo)
       .maybeSingle();
+
     assigned = data || null;
   } catch (e) {}
 
@@ -148,23 +335,79 @@ async function loadStudentView(ctx) {
         <p class="muted">Tu selección ya fue cerrada. Solo se muestra el tema asignado.</p>
         <div class="metric" style="margin-top:14px">
           <div class="muted">Tema asignado</div>
-          <div class="value" style="font-size:22px;color:var(--ink)">${assigned ? escapeHtml(assigned.tema_asignado) : 'Sin asignación registrada'}</div>
-          <div class="footer-note">${assigned ? `${escapeHtml(assigned.codigo_tema || '')} · ${escapeHtml(assigned.modalidad || '')}` : 'Si no aparece, consulta con coordinación.'}</div>
+          <div class="value" style="font-size:22px;color:var(--ink)">
+            ${assigned ? escapeHtml(assigned.tema_asignado) : 'Sin asignación registrada'}
+          </div>
+          <div class="footer-note">
+            ${assigned ? `${escapeHtml(assigned.codigo_tema || '')} · ${escapeHtml(assigned.modalidad || '')}` : 'Si no aparece, consulta con coordinación.'}
+          </div>
         </div>
-        <div class="actions" style="margin-top:14px"><button class="secondary" id="btnLogout1">Cerrar sesión</button></div>
-      </div>`;
+        <div class="actions" style="margin-top:14px">
+          <button class="secondary" id="btnLogout1">Cerrar sesión</button>
+        </div>
+      </div>
+    `;
     document.getElementById('btnLogout1').onclick = logout;
     return;
   }
 
   const modes = allowedModesForGroup(g);
+
   const { data: projects, error } = await sb
     .from('proyectos')
     .select('id,codigo,titulo,area,modalidad_asignable')
     .eq('activo', true)
     .in('modalidad_asignable', modes)
     .order('codigo');
+
   if (error) throw error;
+
+  const metodologiaTexto = g.modalidad === 'presencial'
+    ? `
+      <p><strong>Temas elegibles para modalidad presencial:</strong> puedes seleccionar únicamente temas <strong>comunes</strong> y temas <strong>preferentes presenciales</strong>.</p>
+      <p><strong>Metodología de selección:</strong> debes registrar 5 preferencias distintas. El sistema asignará automáticamente el primer tema disponible según tu orden de preferencia. Si un tema ya fue asignado a otro grupo, dejará de estar disponible.</p>
+    `
+    : `
+      <p><strong>Temas elegibles para modalidad virtual:</strong> puedes seleccionar únicamente temas <strong>comunes</strong> y temas <strong>preferentes virtuales</strong>.</p>
+      <p><strong>Metodología de selección:</strong> debes registrar 5 preferencias distintas. El sistema asignará automáticamente el primer tema disponible según tu orden de preferencia. Si un tema ya fue asignado a otro grupo, dejará de estar disponible.</p>
+    `;
+
+  const temasElegiblesHtml = (projects && projects.length)
+    ? `
+      <div class="card" style="margin-top:16px">
+        <h3>Temas elegibles para tu modalidad</h3>
+        <div class="notice warn" style="margin-bottom:12px">
+          ${metodologiaTexto}
+        </div>
+        <div style="overflow:auto; max-height:320px; border:1px solid var(--line); border-radius:10px">
+          <table>
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Tema</th>
+                <th>Área</th>
+                <th>Tipo</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${projects.map(p => `
+                <tr>
+                  <td>${escapeHtml(p.codigo || '')}</td>
+                  <td>${escapeHtml(p.titulo || '')}</td>
+                  <td>${escapeHtml(p.area || '')}</td>
+                  <td>${escapeHtml(p.modalidad_asignable || '')}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `
+    : `
+      <div class="notice bad" style="margin-top:16px">
+        No se encontraron temas elegibles para tu modalidad.
+      </div>
+    `;
 
   const options = ['<option value="">Seleccione…</option>'].concat(
     (projects || []).map(p => `<option value="${p.id}">${escapeHtml(p.codigo)} — ${escapeHtml(p.titulo)}</option>`)
@@ -172,79 +415,153 @@ async function loadStudentView(ctx) {
 
   appCard.innerHTML = `
     <h2>Selección de preferencias</h2>
-    <p class="muted">Grupo: <strong>${escapeHtml(g.codigo_grupo)}</strong> · Modalidad: <strong>${escapeHtml(g.modalidad)}</strong>. Debes elegir 5 temas distintos. Al confirmar, la selección se cierra y el sistema asigna el primer tema disponible según tu orden de preferencia.</p>
-    <div class="grid grid-2">
-      <div><label>Preferencia 1</label><select id="pref1">${options}</select></div>
-      <div><label>Preferencia 2</label><select id="pref2">${options}</select></div>
-      <div><label>Preferencia 3</label><select id="pref3">${options}</select></div>
-      <div><label>Preferencia 4</label><select id="pref4">${options}</select></div>
-      <div><label>Preferencia 5</label><select id="pref5">${options}</select></div>
+    <p class="muted">
+      Grupo: <strong>${escapeHtml(g.codigo_grupo)}</strong> ·
+      Modalidad: <strong>${escapeHtml(g.modalidad)}</strong>.
+    </p>
+
+    ${temasElegiblesHtml}
+
+    <div class="card" style="margin-top:16px">
+      <h3>Registro de preferencias</h3>
+      <p class="muted">
+        Debes elegir 5 temas distintos entre los temas habilitados para tu modalidad.
+        Una vez confirmada la selección, ya no podrá ser modificada.
+      </p>
+
+      <div class="grid grid-2">
+        <div><label>Preferencia 1</label><select id="pref1">${options}</select></div>
+        <div><label>Preferencia 2</label><select id="pref2">${options}</select></div>
+        <div><label>Preferencia 3</label><select id="pref3">${options}</select></div>
+        <div><label>Preferencia 4</label><select id="pref4">${options}</select></div>
+        <div><label>Preferencia 5</label><select id="pref5">${options}</select></div>
+      </div>
+
+      <div class="actions" style="margin-top:14px">
+        <button id="btnSavePrefs">Confirmar preferencias y asignar</button>
+        <button class="secondary" id="btnLogout2">Cerrar sesión</button>
+      </div>
+
+      <div id="studentMsg"></div>
+      <div class="footer-note">
+        Si el sistema detecta temas repetidos o faltantes, no permitirá cerrar la selección.
+      </div>
     </div>
-    <div class="actions" style="margin-top:14px">
-      <button id="btnSavePrefs">Confirmar preferencias y asignar</button>
-      <button class="secondary" id="btnLogout2">Cerrar sesión</button>
-    </div>
-    <div id="studentMsg"></div>
-    <div class="footer-note">Solo se muestran temas compatibles con tu modalidad. Si el sistema detecta repetidos o faltantes, no permitirá cerrar la selección.</div>
   `;
 
   document.getElementById('btnLogout2').onclick = logout;
+
   document.getElementById('btnSavePrefs').onclick = async () => {
-    const picks = [1,2,3,4,5].map(i => document.getElementById(`pref${i}`).value).filter(Boolean);
+    const picks = [1,2,3,4,5]
+      .map(i => document.getElementById(`pref${i}`).value)
+      .filter(Boolean);
+
     const m = document.getElementById('studentMsg');
+
     if (picks.length !== 5) {
       msg(m, 'Debes seleccionar exactamente 5 temas.', 'warn');
       return;
     }
+
     if (new Set(picks).size !== 5) {
       msg(m, 'No puedes repetir temas en tus preferencias.', 'warn');
       return;
     }
+
     document.getElementById('btnSavePrefs').disabled = true;
     msg(m, 'Procesando tu selección…', 'warn');
-    const { data, error } = await sb.rpc('assign_group_preferences', { p_project_ids: picks });
+
+    const { data, error } = await sb.rpc('assign_group_preferences', {
+      p_project_ids: picks
+    });
+
     if (error) {
       document.getElementById('btnSavePrefs').disabled = false;
       msg(m, escapeHtml(error.message || 'No se pudo completar la asignación.'), 'bad');
       return;
     }
+
     const result = Array.isArray(data) ? data[0] : data;
-    msg(m, `Selección cerrada correctamente. Tema asignado: <strong>${escapeHtml(result?.assigned_code || '')} — ${escapeHtml(result?.assigned_title || '')}</strong>.`, 'ok');
+
+    msg(
+      m,
+      `Selección cerrada correctamente. Tema asignado: <strong>${escapeHtml(result?.assigned_code || '')} — ${escapeHtml(result?.assigned_title || '')}</strong>.`,
+      'ok'
+    );
+
     setTimeout(loadApp, 1000);
   };
 }
 
 async function loadCoordinatorView(ctx) {
-  const [{ count: totalGroups }, { count: closedGroups }, { count: totalAssigned }, exportRowsRes] = await Promise.all([
+  const [
+    { count: totalGroups },
+    { count: closedGroups },
+    { count: totalAssigned },
+    exportRowsRes
+  ] = await Promise.all([
     sb.from('grupos').select('*', { count: 'exact', head: true }).eq('perfil', 'estudiante'),
     sb.from('grupos').select('*', { count: 'exact', head: true }).eq('perfil', 'estudiante').eq('preferencias_cerradas', true),
     sb.from('asignaciones').select('*', { count: 'exact', head: true }),
     sb.from('vw_asignaciones_export').select('*').order('codigo_grupo')
   ]);
+
   const exportRows = exportRowsRes.data || [];
   const pending = (totalGroups || 0) - (closedGroups || 0);
 
   appCard.innerHTML = `
     <h2>Coordinación</h2>
     <p class="muted">Panel operativo con el estado general del proceso y el resultado exportable.</p>
+
     <div class="grid grid-3">
-      <div class="metric"><div class="muted">Grupos estudiantes</div><div class="value">${totalGroups || 0}</div></div>
-      <div class="metric"><div class="muted">Preferencias cerradas</div><div class="value">${closedGroups || 0}</div></div>
-      <div class="metric"><div class="muted">Pendientes</div><div class="value">${pending}</div></div>
+      <div class="metric">
+        <div class="muted">Grupos estudiantes</div>
+        <div class="value">${totalGroups || 0}</div>
+      </div>
+      <div class="metric">
+        <div class="muted">Preferencias cerradas</div>
+        <div class="value">${closedGroups || 0}</div>
+      </div>
+      <div class="metric">
+        <div class="muted">Pendientes</div>
+        <div class="value">${pending}</div>
+      </div>
     </div>
+
     <div class="actions" style="margin-top:14px">
-  <button id="btnExport">Exportar CSV</button>
-  <button class="secondary" id="btnRefresh">Actualizar</button>
-  <button class="danger" id="btnResetSystem">Restablecer sistema</button>
-  <button class="secondary" id="btnLogout3">Cerrar sesión</button>
-</div>
+      <button id="btnExport">Exportar CSV</button>
+      <button class="secondary" id="btnRefresh">Actualizar</button>
+      <button class="danger" id="btnResetSystem">Restablecer sistema</button>
+      <button class="secondary" id="btnLogout3">Cerrar sesión</button>
+    </div>
+
     <div class="card" style="margin-top:18px">
       <h3>Asignaciones registradas</h3>
       <div style="overflow:auto">
         <table>
-          <thead><tr><th>Grupo</th><th>Nombre</th><th>Modalidad</th><th>Código tema</th><th>Tema asignado</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Grupo</th>
+              <th>Nombre</th>
+              <th>Modalidad</th>
+              <th>Código tema</th>
+              <th>Tema asignado</th>
+            </tr>
+          </thead>
           <tbody>
-            ${(exportRows.length ? exportRows.map(r => `<tr><td>${escapeHtml(r.codigo_grupo||'')}</td><td>${escapeHtml(r.nombre_grupo||'')}</td><td>${escapeHtml(r.modalidad||'')}</td><td>${escapeHtml(r.codigo_tema||'')}</td><td>${escapeHtml(r.tema_asignado||'')}</td></tr>`).join('') : '<tr><td colspan="5" class="muted">Aún no hay asignaciones registradas.</td></tr>')}
+            ${
+              exportRows.length
+                ? exportRows.map(r => `
+                  <tr>
+                    <td>${escapeHtml(r.codigo_grupo || '')}</td>
+                    <td>${escapeHtml(r.nombre_grupo || '')}</td>
+                    <td>${escapeHtml(r.modalidad || '')}</td>
+                    <td>${escapeHtml(r.codigo_tema || '')}</td>
+                    <td>${escapeHtml(r.tema_asignado || '')}</td>
+                  </tr>
+                `).join('')
+                : '<tr><td colspan="5" class="muted">Aún no hay asignaciones registradas.</td></tr>'
+            }
           </tbody>
         </table>
       </div>
@@ -254,9 +571,17 @@ async function loadCoordinatorView(ctx) {
   document.getElementById('btnLogout3').onclick = logout;
   document.getElementById('btnRefresh').onclick = loadApp;
   document.getElementById('btnResetSystem').onclick = resetSystem;
+
   document.getElementById('btnExport').onclick = () => {
     const headers = ['codigo_grupo','nombre_grupo','modalidad','codigo_tema','tema_asignado'];
-    const lines = [headers.join(',')].concat(exportRows.map(r => [r.codigo_grupo,r.nombre_grupo,r.modalidad,r.codigo_tema,r.tema_asignado].map(csvEscape).join(',')));
+    const lines = [headers.join(',')].concat(
+      exportRows.map(r =>
+        [r.codigo_grupo,r.nombre_grupo,r.modalidad,r.codigo_tema,r.tema_asignado]
+          .map(csvEscape)
+          .join(',')
+      )
+    );
+
     const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -271,6 +596,7 @@ async function resetSystem() {
   const ok = confirm(
     'Esta acción eliminará todas las preferencias y asignaciones registradas, y reabrirá a todos los grupos estudiantes. ¿Deseas continuar?'
   );
+
   if (!ok) return;
 
   try {
@@ -301,23 +627,27 @@ async function resetSystem() {
     alert('No se pudo restablecer el sistema: ' + (err.message || err));
   }
 }
-  
+
 async function loadApp() {
   try {
     const ctx = await getProfile();
+
     if (!ctx?.authUser) {
       appCard.classList.add('hidden');
       loginCard.classList.remove('hidden');
       return;
     }
+
     if (!ctx.group) {
       loginCard.classList.remove('hidden');
       appCard.classList.remove('hidden');
       appCard.innerHTML = `<div class="notice bad">El usuario autenticado no tiene registro asociado en la tabla grupos.</div>`;
       return;
     }
+
     loginCard.classList.add('hidden');
     appCard.classList.remove('hidden');
+
     if (ctx.group.perfil === 'coordinacion') {
       await loadCoordinatorView(ctx);
     } else {
@@ -371,6 +701,7 @@ async function logout(){
 }
 
 btnLogin.onclick = login;
+
 loadApp().catch(err => {
   loginCard.classList.remove('hidden');
   appCard.classList.remove('hidden');
