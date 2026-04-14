@@ -153,7 +153,7 @@ async function loadStudentView(ctx) {
   const { data: projects, error } = await sb
     .from('proyectos')
     .select('id,codigo,titulo,area,modalidad_asignable')
-    .eq('disponible', true)
+    .eq('activo', true)
     .in('modalidad_asignable', modes)
     .order('codigo');
   if (error) throw error;
