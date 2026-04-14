@@ -43,6 +43,14 @@
     .tag{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef4fb;color:var(--brand);font-size:12px;font-weight:700}
     .footer-note{font-size:12px;color:var(--muted);margin-top:10px}
     @media (max-width:800px){.grid-2,.grid-3{grid-template-columns:1fr}}
+    .danger {
+  background: #b91c1c;
+  color: white;
+  border: none;
+}
+.danger:hover {
+  filter: brightness(0.95);
+}
   </style>
 </head>
 <body>
@@ -53,7 +61,7 @@
 <main>
   <section id="configCard" class="card">
     <h2>Configuración</h2>
-    <p class="muted">Antes de publicar, reemplaza en el código los valores de <code>SUPABASE_URL</code> y <code>SUPABASE_ANON_KEY</code>.</p>
+    <p class="muted">Antes de dar click en el boton para validar los 5 temas seleccionados, revisar bien los temas seleccionados, ya que una vez se seleccione el tema final, ya no es posible reasignarlo.</p>
   </section>
 
   <section id="loginCard" class="card">
@@ -225,10 +233,11 @@ async function loadCoordinatorView(ctx) {
       <div class="metric"><div class="muted">Pendientes</div><div class="value">${pending}</div></div>
     </div>
     <div class="actions" style="margin-top:14px">
-      <button id="btnExport">Exportar CSV</button>
-      <button class="secondary" id="btnRefresh">Actualizar</button>
-      <button class="secondary" id="btnLogout3">Cerrar sesión</button>
-    </div>
+  <button id="btnExport">Exportar CSV</button>
+  <button class="secondary" id="btnRefresh">Actualizar</button>
+  <button class="danger" id="btnResetSystem">Restablecer sistema</button>
+  <button class="secondary" id="btnLogout3">Cerrar sesión</button>
+</div>
     <div class="card" style="margin-top:18px">
       <h3>Asignaciones registradas</h3>
       <div style="overflow:auto">
@@ -244,6 +253,7 @@ async function loadCoordinatorView(ctx) {
 
   document.getElementById('btnLogout3').onclick = logout;
   document.getElementById('btnRefresh').onclick = loadApp;
+  document.getElementById('btnResetSystem').onclick = resetSystem;
   document.getElementById('btnExport').onclick = () => {
     const headers = ['codigo_grupo','nombre_grupo','modalidad','codigo_tema','tema_asignado'];
     const lines = [headers.join(',')].concat(exportRows.map(r => [r.codigo_grupo,r.nombre_grupo,r.modalidad,r.codigo_tema,r.tema_asignado].map(csvEscape).join(',')));
@@ -257,6 +267,41 @@ async function loadCoordinatorView(ctx) {
   };
 }
 
+async function resetSystem() {
+  const ok = confirm(
+    'Esta acción eliminará todas las preferencias y asignaciones registradas, y reabrirá a todos los grupos estudiantes. ¿Deseas continuar?'
+  );
+  if (!ok) return;
+
+  try {
+    const { error: prefError } = await sb
+      .from('preferencias')
+      .delete()
+      .not('id', 'is', null);
+
+    if (prefError) throw prefError;
+
+    const { error: asigError } = await sb
+      .from('asignaciones')
+      .delete()
+      .not('id', 'is', null);
+
+    if (asigError) throw asigError;
+
+    const { error: gruposError } = await sb
+      .from('grupos')
+      .update({ preferencias_cerradas: false })
+      .eq('perfil', 'estudiante');
+
+    if (gruposError) throw gruposError;
+
+    alert('El sistema fue restablecido correctamente.');
+    await loadApp();
+  } catch (err) {
+    alert('No se pudo restablecer el sistema: ' + (err.message || err));
+  }
+}
+  
 async function loadApp() {
   try {
     const ctx = await getProfile();
