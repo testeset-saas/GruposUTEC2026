@@ -314,6 +314,49 @@ function allowedModesForGroup(group){
     : ['comun', 'preferente virtual'];
 }
 
+function getRequiredDistribution(modalidad) {
+  return modalidad === 'presencial'
+    ? { commonType: 'comun', preferredType: 'preferente presencial', commonMin: 2, preferredMin: 2 }
+    : { commonType: 'comun', preferredType: 'preferente virtual', commonMin: 2, preferredMin: 2 };
+}
+
+function validateSelection221(picks, projectsMap, modalidad) {
+  const cfg = getRequiredDistribution(modalidad);
+
+  let commonCount = 0;
+  let preferredCount = 0;
+  let invalidCount = 0;
+
+  for (const id of picks) {
+    const project = projectsMap.get(id);
+    if (!project) {
+      invalidCount += 1;
+      continue;
+    }
+
+    const type = String(project.modalidad_asignable || '').toLowerCase().trim();
+
+    if (type === cfg.commonType) commonCount += 1;
+    else if (type === cfg.preferredType) preferredCount += 1;
+    else invalidCount += 1;
+  }
+
+  const isValid =
+    invalidCount === 0 &&
+    commonCount >= cfg.commonMin &&
+    preferredCount >= cfg.preferredMin &&
+    picks.length === 5;
+
+  return {
+    isValid,
+    commonCount,
+    preferredCount,
+    invalidCount,
+    commonType: cfg.commonType,
+    preferredType: cfg.preferredType
+  };
+}
+
 async function loadStudentView(ctx) {
   const g = ctx.group;
   let assigned = null;
@@ -362,17 +405,22 @@ async function loadStudentView(ctx) {
 
   if (error) throw error;
 
+  const projectsList = projects || [];
+  const projectsMap = new Map(projectsList.map(p => [String(p.id), p]));
+
   const metodologiaTexto = g.modalidad === 'presencial'
     ? `
       <p><strong>Temas elegibles para modalidad presencial:</strong> puedes seleccionar únicamente temas <strong>comunes</strong> y temas <strong>preferentes presenciales</strong>.</p>
-      <p><strong>Metodología de selección:</strong> debes registrar 5 preferencias distintas. El sistema asignará automáticamente el primer tema disponible según tu orden de preferencia. Si un tema ya fue asignado a otro grupo, dejará de estar disponible.</p>
+      <p><strong>Regla de selección 2+2+1:</strong> debes registrar como mínimo <strong>2 temas comunes</strong>, <strong>2 temas preferentes presenciales</strong> y <strong>1 tema libre</strong> que puede pertenecer a cualquiera de esas dos categorías.</p>
+      <p><strong>Fórmula de asignación final:</strong> el sistema revisa tus 5 preferencias en el orden seleccionado y asigna automáticamente la <strong>primera opción disponible</strong>. Si una preferencia ya fue asignada a otro grupo, pasa a la siguiente.</p>
     `
     : `
       <p><strong>Temas elegibles para modalidad virtual:</strong> puedes seleccionar únicamente temas <strong>comunes</strong> y temas <strong>preferentes virtuales</strong>.</p>
-      <p><strong>Metodología de selección:</strong> debes registrar 5 preferencias distintas. El sistema asignará automáticamente el primer tema disponible según tu orden de preferencia. Si un tema ya fue asignado a otro grupo, dejará de estar disponible.</p>
+      <p><strong>Regla de selección 2+2+1:</strong> debes registrar como mínimo <strong>2 temas comunes</strong>, <strong>2 temas preferentes virtuales</strong> y <strong>1 tema libre</strong> que puede pertenecer a cualquiera de esas dos categorías.</p>
+      <p><strong>Fórmula de asignación final:</strong> el sistema revisa tus 5 preferencias en el orden seleccionado y asigna automáticamente la <strong>primera opción disponible</strong>. Si una preferencia ya fue asignada a otro grupo, pasa a la siguiente.</p>
     `;
 
-  const temasElegiblesHtml = (projects && projects.length)
+  const temasElegiblesHtml = projectsList.length
     ? `
       <div class="card" style="margin-top:16px">
         <h3>Temas elegibles para tu modalidad</h3>
@@ -390,7 +438,7 @@ async function loadStudentView(ctx) {
               </tr>
             </thead>
             <tbody>
-              ${projects.map(p => `
+              ${projectsList.map(p => `
                 <tr>
                   <td>${escapeHtml(p.codigo || '')}</td>
                   <td>${escapeHtml(p.titulo || '')}</td>
@@ -410,7 +458,7 @@ async function loadStudentView(ctx) {
     `;
 
   const options = ['<option value="">Seleccione…</option>'].concat(
-    (projects || []).map(p => `<option value="${p.id}">${escapeHtml(p.codigo)} — ${escapeHtml(p.titulo)}</option>`)
+    projectsList.map(p => `<option value="${p.id}">${escapeHtml(p.codigo)} — ${escapeHtml(p.titulo)} (${escapeHtml(p.modalidad_asignable)})</option>`)
   ).join('');
 
   appCard.innerHTML = `
@@ -425,7 +473,7 @@ async function loadStudentView(ctx) {
     <div class="card" style="margin-top:16px">
       <h3>Registro de preferencias</h3>
       <p class="muted">
-        Debes elegir 5 temas distintos entre los temas habilitados para tu modalidad.
+        Debes elegir 5 temas distintos entre los temas habilitados para tu modalidad y cumplir la regla 2+2+1.
         Una vez confirmada la selección, ya no podrá ser modificada.
       </p>
 
@@ -444,7 +492,7 @@ async function loadStudentView(ctx) {
 
       <div id="studentMsg"></div>
       <div class="footer-note">
-        Si el sistema detecta temas repetidos o faltantes, no permitirá cerrar la selección.
+        Validación obligatoria: 5 temas distintos + regla 2+2+1 + compatibilidad con tu modalidad.
       </div>
     </div>
   `;
@@ -468,6 +516,21 @@ async function loadStudentView(ctx) {
       return;
     }
 
+    const dist = validateSelection221(picks.map(String), projectsMap, g.modalidad);
+
+    if (!dist.isValid) {
+      const etiquetaPreferente = g.modalidad === 'presencial'
+        ? 'preferentes presenciales'
+        : 'preferentes virtuales';
+
+      msg(
+        m,
+        `La selección no cumple la regla 2+2+1. Debes elegir al menos 2 temas comunes y al menos 2 temas ${etiquetaPreferente}. Selección actual: ${dist.commonCount} comunes y ${dist.preferredCount} ${etiquetaPreferente}.`,
+        'warn'
+      );
+      return;
+    }
+
     document.getElementById('btnSavePrefs').disabled = true;
     msg(m, 'Procesando tu selección…', 'warn');
 
@@ -485,11 +548,11 @@ async function loadStudentView(ctx) {
 
     msg(
       m,
-      `Selección cerrada correctamente. Tema asignado: <strong>${escapeHtml(result?.assigned_code || '')} — ${escapeHtml(result?.assigned_title || '')}</strong>.`,
+      `Selección cerrada correctamente. Tema asignado: <strong>${escapeHtml(result?.assigned_code || '')} — ${escapeHtml(result?.assigned_title || '')}</strong>. El sistema utilizó el orden de tus 5 preferencias y asignó la primera opción disponible.`,
       'ok'
     );
 
-    setTimeout(loadApp, 1000);
+    setTimeout(loadApp, 1200);
   };
 }
 
