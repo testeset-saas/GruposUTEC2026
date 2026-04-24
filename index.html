@@ -558,23 +558,51 @@ async function loadStudentView(ctx) {
 
 async function loadCoordinatorView(ctx) {
   const [
-    { count: totalGroups },
+    groupsRes,
     { count: closedGroups },
     { count: totalAssigned },
-    exportRowsRes
+    exportRowsRes,
+    projectsRes
   ] = await Promise.all([
-    sb.from('grupos').select('*', { count: 'exact', head: true }).eq('perfil', 'estudiante'),
+    sb.from('grupos')
+      .select('id,codigo_grupo,nombre_grupo,modalidad,preferencias_cerradas,perfil')
+      .eq('perfil', 'estudiante')
+      .order('codigo_grupo'),
     sb.from('grupos').select('*', { count: 'exact', head: true }).eq('perfil', 'estudiante').eq('preferencias_cerradas', true),
     sb.from('asignaciones').select('*', { count: 'exact', head: true }),
-    sb.from('vw_asignaciones_export').select('*').order('codigo_grupo')
+    sb.from('vw_asignaciones_export').select('*').order('codigo_grupo'),
+    sb.from('proyectos')
+      .select('id,codigo,titulo,area,modalidad_asignable,activo')
+      .eq('activo', true)
+      .order('codigo')
   ]);
 
+  if (groupsRes.error) throw groupsRes.error;
+  if (exportRowsRes.error) throw exportRowsRes.error;
+  if (projectsRes.error) throw projectsRes.error;
+
+  const groups = groupsRes.data || [];
   const exportRows = exportRowsRes.data || [];
-  const pending = (totalGroups || 0) - (closedGroups || 0);
+  const projects = projectsRes.data || [];
+  const totalGroups = groups.length;
+  const pendingGroups = groups.filter(g => !g.preferencias_cerradas);
+  const pending = pendingGroups.length;
+
+  const assignedCodes = new Set(
+    exportRows
+      .map(r => String(r.codigo_tema || '').trim())
+      .filter(Boolean)
+  );
+
+  const pendingTopics = projects.filter(p => !assignedCodes.has(String(p.codigo || '').trim()));
+
+  const assignedByGroup = new Map(
+    exportRows.map(r => [String(r.codigo_grupo || ''), r])
+  );
 
   appCard.innerHTML = `
-    <h2>Coordinación</h2>
-    <p class="muted">Panel operativo con el estado general del proceso y el resultado exportable.</p>
+    <h2>Coordinación / Administración</h2>
+    <p class="muted">Panel operativo con estado general, grupos pendientes y anulación de temas asignados.</p>
 
     <div class="grid grid-3">
       <div class="metric">
@@ -586,8 +614,23 @@ async function loadCoordinatorView(ctx) {
         <div class="value">${closedGroups || 0}</div>
       </div>
       <div class="metric">
-        <div class="muted">Pendientes</div>
+        <div class="muted">Pendientes de entregar</div>
         <div class="value">${pending}</div>
+      </div>
+    </div>
+
+    <div class="grid grid-3" style="margin-top:14px">
+      <div class="metric">
+        <div class="muted">Temas activos</div>
+        <div class="value">${projects.length || 0}</div>
+      </div>
+      <div class="metric">
+        <div class="muted">Temas asignados</div>
+        <div class="value">${assignedCodes.size || 0}</div>
+      </div>
+      <div class="metric">
+        <div class="muted">Temas pendientes por asignar</div>
+        <div class="value">${pendingTopics.length || 0}</div>
       </div>
     </div>
 
@@ -598,8 +641,75 @@ async function loadCoordinatorView(ctx) {
       <button class="secondary" id="btnLogout3">Cerrar sesión</button>
     </div>
 
+    <div id="adminMsg"></div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>Temas pendientes por asignar</h3>
+      <p class="muted">Estos temas están activos y aún no aparecen como asignados a ningún grupo. Si se anula una asignación, el tema volverá a mostrarse en esta lista.</p>
+      <div style="overflow:auto; max-height:360px; border:1px solid var(--line); border-radius:10px">
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Tema</th>
+              <th>Área</th>
+              <th>Modalidad asignable</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${
+              pendingTopics.length
+                ? pendingTopics.map(p => `
+                  <tr>
+                    <td>${escapeHtml(p.codigo || '')}</td>
+                    <td>${escapeHtml(p.titulo || '')}</td>
+                    <td>${escapeHtml(p.area || '')}</td>
+                    <td>${escapeHtml(p.modalidad_asignable || '')}</td>
+                    <td><span class="tag">Disponible</span></td>
+                  </tr>
+                `).join('')
+                : '<tr><td colspan="5" class="muted">No hay temas pendientes por asignar.</td></tr>'
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <h3>Grupos pendientes de entregar selección</h3>
+      <p class="muted">Estos grupos aún no han cerrado sus preferencias o no tienen tema asignado.</p>
+      <div style="overflow:auto">
+        <table>
+          <thead>
+            <tr>
+              <th>Grupo</th>
+              <th>Nombre</th>
+              <th>Modalidad</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${
+              pendingGroups.length
+                ? pendingGroups.map(g => `
+                  <tr>
+                    <td>${escapeHtml(g.codigo_grupo || '')}</td>
+                    <td>${escapeHtml(g.nombre_grupo || '')}</td>
+                    <td>${escapeHtml(g.modalidad || '')}</td>
+                    <td><span class="tag">Pendiente</span></td>
+                  </tr>
+                `).join('')
+                : '<tr><td colspan="4" class="muted">No hay grupos pendientes de entregar selección.</td></tr>'
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <div class="card" style="margin-top:18px">
       <h3>Asignaciones registradas</h3>
+      <p class="muted">Desde esta sección puedes anular la asignación de un grupo específico. El tema quedará disponible nuevamente y el grupo podrá volver a seleccionar.</p>
       <div style="overflow:auto">
         <table>
           <thead>
@@ -609,21 +719,30 @@ async function loadCoordinatorView(ctx) {
               <th>Modalidad</th>
               <th>Código tema</th>
               <th>Tema asignado</th>
+              <th>Acción</th>
             </tr>
           </thead>
           <tbody>
             ${
               exportRows.length
-                ? exportRows.map(r => `
-                  <tr>
-                    <td>${escapeHtml(r.codigo_grupo || '')}</td>
-                    <td>${escapeHtml(r.nombre_grupo || '')}</td>
-                    <td>${escapeHtml(r.modalidad || '')}</td>
-                    <td>${escapeHtml(r.codigo_tema || '')}</td>
-                    <td>${escapeHtml(r.tema_asignado || '')}</td>
-                  </tr>
-                `).join('')
-                : '<tr><td colspan="5" class="muted">Aún no hay asignaciones registradas.</td></tr>'
+                ? exportRows.map(r => {
+                    const group = groups.find(g => String(g.codigo_grupo || '') === String(r.codigo_grupo || ''));
+                    return `
+                      <tr>
+                        <td>${escapeHtml(r.codigo_grupo || '')}</td>
+                        <td>${escapeHtml(r.nombre_grupo || '')}</td>
+                        <td>${escapeHtml(r.modalidad || '')}</td>
+                        <td>${escapeHtml(r.codigo_tema || '')}</td>
+                        <td>${escapeHtml(r.tema_asignado || '')}</td>
+                        <td>
+                          <button class="danger btnCancelAssignment" data-group-id="${escapeHtml(group?.id || '')}" data-group-code="${escapeHtml(r.codigo_grupo || '')}" ${group?.id ? '' : 'disabled'}>
+                            Anular
+                          </button>
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')
+                : '<tr><td colspan="6" class="muted">Aún no hay asignaciones registradas.</td></tr>'
             }
           </tbody>
         </table>
@@ -634,6 +753,13 @@ async function loadCoordinatorView(ctx) {
   document.getElementById('btnLogout3').onclick = logout;
   document.getElementById('btnRefresh').onclick = loadApp;
   document.getElementById('btnResetSystem').onclick = resetSystem;
+
+  document.querySelectorAll('.btnCancelAssignment').forEach(btn => {
+    btn.onclick = () => cancelGroupAssignment(
+      btn.getAttribute('data-group-id'),
+      btn.getAttribute('data-group-code')
+    );
+  });
 
   document.getElementById('btnExport').onclick = () => {
     const headers = ['codigo_grupo','nombre_grupo','modalidad','codigo_tema','tema_asignado'];
@@ -653,6 +779,51 @@ async function loadCoordinatorView(ctx) {
     a.click();
     a.remove();
   };
+}
+
+async function cancelGroupAssignment(groupId, groupCode) {
+  const adminMsg = document.getElementById('adminMsg');
+
+  if (!groupId) {
+    msg(adminMsg, 'No se pudo identificar el grupo seleccionado.', 'bad');
+    return;
+  }
+
+  const ok = confirm(
+    `Esta acción anulará la asignación del grupo ${groupCode}, eliminará sus preferencias y dejará el tema disponible nuevamente. ¿Deseas continuar?`
+  );
+
+  if (!ok) return;
+
+  try {
+    msg(adminMsg, `Anulando asignación del grupo ${escapeHtml(groupCode)}…`, 'warn');
+
+    const { error: prefError } = await sb
+      .from('preferencias')
+      .delete()
+      .eq('grupo_id', groupId);
+
+    if (prefError) throw prefError;
+
+    const { error: asigError } = await sb
+      .from('asignaciones')
+      .delete()
+      .eq('grupo_id', groupId);
+
+    if (asigError) throw asigError;
+
+    const { error: gruposError } = await sb
+      .from('grupos')
+      .update({ preferencias_cerradas: false })
+      .eq('id', groupId);
+
+    if (gruposError) throw gruposError;
+
+    msg(adminMsg, `La asignación del grupo ${escapeHtml(groupCode)} fue anulada correctamente. El tema quedó disponible nuevamente.`, 'ok');
+    setTimeout(loadApp, 900);
+  } catch (err) {
+    msg(adminMsg, `No se pudo anular la asignación: ${escapeHtml(err?.message || err)}`, 'bad');
+  }
 }
 
 async function resetSystem() {
